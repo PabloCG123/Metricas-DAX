@@ -1,0 +1,212 @@
+Métricas DAX
+
+SO Pesos 2024 = CALCULATE(
+    SUM('GLOBAL\E040315 VG_Johnson_SD_24'[POS Sales]),
+    'GLOBAL\E040315 V_VG_Calendar_WK'[Fiscal_Year]= "2024")
+
+--------------------------------------------------------------------------------------------------------------------------------------
+
+SO Pesos YTD 2024 = 
+VAR P1 =
+
+CALCULATE(
+    SUM('GLOBAL\E040315 VG_Johnson_SD_24'[POS Sales]),
+    FILTER(
+        ALL('GLOBAL\E040315 V_VG_Calendar_WK'[Fiscal_Week]),
+            'GLOBAL\E040315 V_VG_Calendar_WK'[Fiscal_Week] <= MAX('GLOBAL\E040315 V_VG_Calendar_WK'[Fiscal_Week])),
+            'GLOBAL\E040315 V_VG_Calendar_WK'[Fiscal_Year]="2024"
+            )
+
+RETURN 
+P1
+
+-------------------------------------------------------------------------------------------------------------------------
+
+SO Pesos YTD 2024 -1W 2 = 
+SUMX (
+    VALUES(O_Cadena[ID_Cadena]),
+    IF (
+        'DEV'[ID Cadena] = 5 || 'DEV'[ID Cadena] = 7,
+        CALCULATE (
+            SUM ( 'GLOBAL\E040315 VG_Johnson_SD_24'[POS Sales] ),
+            FILTER (
+                ALL ( 'GLOBAL\E040315 V_VG_Calendar_WK' ),
+                'GLOBAL\E040315 V_VG_Calendar_WK'[Fiscal_Week] <= MAX ( 'GLOBAL\E040315 V_VG_Calendar_WK'[Fiscal_Week] ) - 1
+                    && 'GLOBAL\E040315 V_VG_Calendar_WK'[Fiscal_Year] = "2024"
+            )
+        ),
+        CALCULATE (
+            SUM ( 'GLOBAL\E040315 VG_Johnson_SD_24'[POS Sales] ),
+            FILTER (
+                ALL ( 'GLOBAL\E040315 V_VG_Calendar_WK' ),
+                'GLOBAL\E040315 V_VG_Calendar_WK'[Fiscal_Week] <= MAX ( 'GLOBAL\E040315 V_VG_Calendar_WK'[Fiscal_Week] )
+                    && 'GLOBAL\E040315 V_VG_Calendar_WK'[Fiscal_Year] = "2024"
+            )
+        )
+    )
+)
+
+--------------------------------------------------------------------------------------------------------------------------
+
+SO Pesos 2024 -1WK FW = 
+VAR P1 = CALCULATE(
+    SUM('GLOBAL\E040315 VG_Johnson_SD_24'[POS Sales]),
+    FILTER(
+        ALL('GLOBAL\E040315 V_VG_Calendar_WK'[Fiscal_Week]),
+        'GLOBAL\E040315 V_VG_Calendar_WK'[Fiscal_Week] > MAX('GLOBAL\E040315 V_VG_Calendar_WK'[Fiscal_Week]) - 1 && 
+	'GLOBAL\E040315 V_VG_Calendar_WK'[Fiscal_Week] <= MAX('GLOBAL\E040315 V_VG_Calendar_WK'[Fiscal_Week])
+    ),'GLOBAL\E040315 V_VG_Calendar_WK'[Fiscal_Year]="2024"
+)
+
+VAR P2 = CALCULATE(P1,'GLOBAL\E040315 V_VG_Calendar_WK'[Fiscal_Year]="2024")
+
+RETURN
+P1
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+SO Pesos 2024 -1WK FW -1W 2 = 
+SUMX (
+    VALUES(O_Cadena[ID_Cadena]),
+    IF (
+        'DEV'[ID Cadena] = 5 || 'DEV'[ID Cadena] = 7,
+ CALCULATE(
+    SUM('GLOBAL\E040315 VG_Johnson_SD_24'[POS Sales]),
+    FILTER(
+        ALL('GLOBAL\E040315 V_VG_Calendar_WK'[Fiscal_Week]),
+        'GLOBAL\E040315 V_VG_Calendar_WK'[Fiscal_Week] > MAX('GLOBAL\E040315 V_VG_Calendar_WK'[Fiscal_Week]) - 2 && 
+        'GLOBAL\E040315 V_VG_Calendar_WK'[Fiscal_Week] <= MAX('GLOBAL\E040315 V_VG_Calendar_WK'[Fiscal_Week])
+    ),
+    'GLOBAL\E040315 V_VG_Calendar_WK'[Fiscal_Year] = "2024"
+)
+- 
+CALCULATE(
+    SUM('GLOBAL\E040315 VG_Johnson_SD_24'[POS Sales]),
+    FILTER(
+        ALL('GLOBAL\E040315 V_VG_Calendar_WK'[Fiscal_Week]),
+        'GLOBAL\E040315 V_VG_Calendar_WK'[Fiscal_Week] > MAX('GLOBAL\E040315 V_VG_Calendar_WK'[Fiscal_Week]) - 1 && 
+        'GLOBAL\E040315 V_VG_Calendar_WK'[Fiscal_Week] <= MAX('GLOBAL\E040315 V_VG_Calendar_WK'[Fiscal_Week])
+    ),
+    'GLOBAL\E040315 V_VG_Calendar_WK'[Fiscal_Year] = "2024"
+    )
+    
+    ,
+
+    CALCULATE(
+    SUM('GLOBAL\E040315 VG_Johnson_SD_24'[POS Sales]),
+    FILTER(
+        ALL('GLOBAL\E040315 V_VG_Calendar_WK'[Fiscal_Week]),
+        'GLOBAL\E040315 V_VG_Calendar_WK'[Fiscal_Week] > MAX('GLOBAL\E040315 V_VG_Calendar_WK'[Fiscal_Week]) - 1 && 
+        'GLOBAL\E040315 V_VG_Calendar_WK'[Fiscal_Week] <= MAX('GLOBAL\E040315 V_VG_Calendar_WK'[Fiscal_Week])
+    ),
+    'GLOBAL\E040315 V_VG_Calendar_WK'[Fiscal_Year] = "2024"
+) 
+)
+)
+
+-------------------------------------------------------------------------------------------------------------------------------------
+
+SO Pesos % Crec YTD FW 2024 = ([SO Pesos YTD 2024] / [SO Pesos YTD 2023])-1
+
+--------------------------------------------------------------------------------------------------------------------------------------
+
+Precio Prom 2024 = DIVIDE(
+    CALCULATE(SUM('GLOBAL\E040315 VG_Johnson_SD_24'[POS Sales]),
+'GLOBAL\E040315 V_VG_Calendar_WK'[Fiscal_Year]="2024"),
+
+    CALCULATE(SUM('GLOBAL\E040315 VG_Johnson_SD_24'[POS Qty]),
+'GLOBAL\E040315 V_VG_Calendar_WK'[Fiscal_Year]="2024")
+)
+
+---------------------------------------------------------------------------------------------------------------------------------------
+
+DOH WK 2024 = 
+VAR P1 = [SO Pzas 2024 -4WK FW]/4
+VAR P2 = DIVIDE(SUM('GLOBAL\E040315 VG_Johnson_SD_24'[POS Inv Qty]),P1)
+VAR P3 = P2*7
+VAR P4 =
+IF(VALUES('GLOBAL\E040315 V_VG_Calendar_WK'[Fiscal_Week])< 4,BLANK(),P3)
+
+RETURN
+P4
+
+-----------------------------------------------------------------------------------------------------------------------------------------
+
+1.1 SO Pesos 2023 JUL = CALCULATE(
+    SUM('GLOBAL\E040315 VG_Johnson_SD_24'[POS Sales]),
+    'GLOBAL\E040315 V_VG_Calendar_WK'[Fiscal_Year] = "2023",
+    'GLOBAL\E040315 V_VG_Calendar_WK'[Fiscal_Week] IN {1, 2, 3, 4, 5}
+)
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+1.1 SO Pesos 2024 JUL = CALCULATE(
+    SUM('GLOBAL\E040315 VG_Johnson_SD_24'[POS Sales]),
+    'GLOBAL\E040315 V_VG_Calendar_WK'[Fiscal_Year] = "2024",
+    'GLOBAL\E040315 V_VG_Calendar_WK'[Fiscal_Week] IN {1, 2, 3, 4, 5}
+)
+
+-----------------------------------------------------------------------------------------------------------------------------------------
+
+1.1 SO Pesos Crec % 2024 JUL = 
+IF(
+    (([1.1 SO Pesos 2024 JUL]/[1.1 SO Pesos 2023 JUL])-1)=-1," ",([1.1 SO Pesos 2024 JUL]/[1.1 SO Pesos 2023 JUL])-1)
+
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+Nielsen A = CONCATENATE("A",'GLOBAL\E040315 V_VG_Stores'[Nielsen])
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Quarter Fiscal = 
+IF('MX Data Customers VG Ecommerce'[V VG Ecommerce Calendario.Mes Fiscal]="07-ENE","Q3",
+IF('MX Data Customers VG Ecommerce'[V VG Ecommerce Calendario.Mes Fiscal]="08-FEB","Q3",
+IF('MX Data Customers VG Ecommerce'[V VG Ecommerce Calendario.Mes Fiscal]="09-MAR","Q3",
+IF('MX Data Customers VG Ecommerce'[V VG Ecommerce Calendario.Mes Fiscal]="10-ABR","Q4",
+IF('MX Data Customers VG Ecommerce'[V VG Ecommerce Calendario.Mes Fiscal]="11-MAY","Q4",
+IF('MX Data Customers VG Ecommerce'[V VG Ecommerce Calendario.Mes Fiscal]="12-JUN","Q4",
+IF('MX Data Customers VG Ecommerce'[V VG Ecommerce Calendario.Mes Fiscal]="01-JUL","Q1",
+IF('MX Data Customers VG Ecommerce'[V VG Ecommerce Calendario.Mes Fiscal]="02-AGO","Q1",
+IF('MX Data Customers VG Ecommerce'[V VG Ecommerce Calendario.Mes Fiscal]="03-SEP","Q1",
+IF('MX Data Customers VG Ecommerce'[V VG Ecommerce Calendario.Mes Fiscal]="04-OCT","Q2",
+IF('MX Data Customers VG Ecommerce'[V VG Ecommerce Calendario.Mes Fiscal]="05-NOV","Q2",
+IF('MX Data Customers VG Ecommerce'[V VG Ecommerce Calendario.Mes Fiscal]="06-DIC","Q2",BLANK()))))))))))))
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+
+Fis SO Pesos Q1 2023 = 
+VAR P1 = CALCULATE(SUM('MX Data Customers VG Ecommerce'[POS Sales]),
+    'MX Data Customers VG Ecommerce'[Quarter Fiscal]="Q1",'MX Data Customers VG Ecommerce'[V VG Ecommerce Calendario.Año Fiscal]="2023"
+)
+
+VAR P2 = IF(P1<=0,0,IFERROR(P1,0))
+
+RETURN
+P2
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------
+
+Orden Fiscal = 
+IF('MX Data Customers VG Ecommerce'[V VG Ecommerce Calendario.Mes Fiscal]="01-JUL",FORMAT(1, "General Number"),
+IF('MX Data Customers VG Ecommerce'[V VG Ecommerce Calendario.Mes Fiscal]="02-AGO",FORMAT(2, "General Number"),
+IF('MX Data Customers VG Ecommerce'[V VG Ecommerce Calendario.Mes Fiscal]="03-SEP",FORMAT(3, "General Number"),
+IF('MX Data Customers VG Ecommerce'[V VG Ecommerce Calendario.Mes Fiscal]="04-OCT",FORMAT(4, "General Number"),
+IF('MX Data Customers VG Ecommerce'[V VG Ecommerce Calendario.Mes Fiscal]="05-NOV",FORMAT(5, "General Number"),
+IF('MX Data Customers VG Ecommerce'[V VG Ecommerce Calendario.Mes Fiscal]="06-DIC",FORMAT(6, "General Number"),
+IF('MX Data Customers VG Ecommerce'[V VG Ecommerce Calendario.Mes Fiscal]="07-ENE",FORMAT(7, "General Number"),
+IF('MX Data Customers VG Ecommerce'[V VG Ecommerce Calendario.Mes Fiscal]="08-FEB",FORMAT(8, "General Number"),
+IF('MX Data Customers VG Ecommerce'[V VG Ecommerce Calendario.Mes Fiscal]="09-MAR",FORMAT(9, "General Number"),
+IF('MX Data Customers VG Ecommerce'[V VG Ecommerce Calendario.Mes Fiscal]="10-ABR",FORMAT(10, "General Number"),
+IF('MX Data Customers VG Ecommerce'[V VG Ecommerce Calendario.Mes Fiscal]="11-MAY",FORMAT(11, "General Number"),
+IF('MX Data Customers VG Ecommerce'[V VG Ecommerce Calendario.Mes Fiscal]="12-JUN",FORMAT(12, "General Number"),FORMAT(0, "General Number")))))))))))))
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
