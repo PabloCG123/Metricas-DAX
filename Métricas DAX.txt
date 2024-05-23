@@ -235,6 +235,19 @@ GROUP BY Retail, FECHA, Flag_Retail, UPC, [NO TIENDA]
 ORDER BY Retail, FECHA desc
 
 
+PowerBI / Excel "cubos"
+Server: USRACIPD043
+BD: DataMart_SSAS  
+
+
+
+Server: USRACIPD058    \MXSALESCORE enginer
+USER: mx_datacustomers
+ quick.908
+
+
+
+
 
 
 
