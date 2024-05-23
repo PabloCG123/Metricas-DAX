@@ -205,7 +205,35 @@ IF('MX Data Customers VG Ecommerce'[V VG Ecommerce Calendario.Mes Fiscal]="11-MA
 IF('MX Data Customers VG Ecommerce'[V VG Ecommerce Calendario.Mes Fiscal]="12-JUN",FORMAT(12, "General Number"),FORMAT(0, "General Number")))))))))))))
 
 
--------------------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+
+*ELETE [GLOBAL\E040315].[VG_Ecommerce] Where Año BETWEEN '2024' AND '3225'
+*ELETE [GLOBAL\E040315].[VG_Ecommerce] Where Cliente ='RAPPI' and Año = 2023 and Mes = '11-NOV'
+
+*PDATE [GLOBAL\E040315].[VG_Ecommerce] SET  Año = '2023' Where (Cliente='RAPPi' AND Año > 2022) 
+
+SELECT        Año, Mes, Cliente, SUM(Pesos) AS Suma
+FROM            [GLOBAL\E040315].VG_Ecommerce
+WHERE        (AÑO = '2023') AND (Cliente = 'OFFICE DEPOT')
+GROUP BY Año, Mes, Cliente
+
+
+WHERE (Descripcion LIKE '%Aceites%') AND (Marca = 'Glade')
+
+
+
+WHERE        ([WM UPC] = '0750303899272') OR
+                         (EAN = '0750303899272') OR
+                         (EAN = '7503038992727')
+
+
+
+SELECT        Flag_Retail, Retail, UPC, [NO TIENDA], SUM(IMPORTE) AS Pesos, SUM([POS PIEZAS]) AS Piezas, FECHA, SUM([INV TRANSIT]) + SUM([INV HAND]) + SUM([INV WHSE]) + SUM([INV ORDER]) AS Inventario
+FROM            sellout
+WHERE        (UPC = '7501032931414') AND ([NO TIENDA] = '29') AND (Retail = '120040') AND (FECHA BETWEEN '2024-04-16' AND '2024-04-30')
+GROUP BY Retail, FECHA, Flag_Retail, UPC, [NO TIENDA]
+ORDER BY Retail, FECHA desc
+
 
 
 
